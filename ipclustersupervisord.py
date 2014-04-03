@@ -426,7 +426,7 @@ class ReliableIPClusterRestartEngines(DefaultClusterSetup):
     """
     def __init__(self, n_engines_per_node=None,
                  n_engines_master=None, log_level='INFO'):
-        super(IPClusterRestartEngines, self).__init__()
+        super(ReliableIPClusterRestartEngines, self).__init__()
 
         if n_engines_per_node is None:
             self.n_engines_per_node = None
