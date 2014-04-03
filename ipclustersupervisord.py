@@ -440,17 +440,25 @@ class ReliableIPClusterRestartEngines(DefaultClusterSetup):
 
 
     def run(self, nodes, master, user, user_shell, volumes):
+        master.ssh.switch_user(user)
+        master.ssh.execute("ipcluster stop", ignore_exit_status=True)
+        time.sleep(2)
+        log.info("Stopping IPython controller on %s", master.alias)
+        master.ssh.execute("pkill -f supervisord", ignore_exit_status=True)
+        master.ssh.execute("pkill -f ipcontroller", ignore_exit_status=True)
+        master.ssh.execute("pkill -f 'ipython notebook'",
+                           ignore_exit_status=True)
+
         n_total = 0
         for node in nodes:
             if node.is_master():
-                n_engines = self.n_engines_master or node.num_processors - 1
-            else:
-                n_engines = self.n_engines_per_node or node.num_processors
+                continue # Skip master node, assume no engines on master.
+            n_engines = self.n_engines_per_node or node.num_processors
             self.pool.simple_job(
                 _start_engines, (node, user, n_engines, True),
                 jobid=node.alias)
             n_total += n_engines
-        log.info("Restarting %d engines on %d nodes", n_total, len(nodes))
+        log.info("Restarting engines on %d nodes", len(nodes))
         self.pool.wait(len(nodes))
 
     def on_add_node(self, node, nodes, master, user, user_shell, volumes):
