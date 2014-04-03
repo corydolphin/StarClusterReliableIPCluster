@@ -57,7 +57,7 @@ http://star.mit.edu/cluster/docs/latest/plugins/ipython.html
 """
 
 
-def _start_engines(node, user, n_engines=None, kill_existing=False):
+def _start_engines(node, user, n_engines=None, kill_existing=True):
     """Launch IPython engines on the given node
 
     Start one engine per CPU except on master where 1 CPU is reserved for house
