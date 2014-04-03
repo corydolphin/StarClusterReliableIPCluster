@@ -70,7 +70,7 @@ def _start_engines(node, user, n_engines=None, kill_existing=True):
     node.ssh.switch_user(user)
     if kill_existing:
         node.ssh.execute("pkill -f supervisord", ignore_exit_status=True)
-        node.ssh.execute("pkill -f ipengineapp", ignore_exit_status=True)
+        node.ssh.execute("pkill -f IPython.parallel.engine", ignore_exit_status=True)
     node.ssh.execute("supervisord -c /home/%s/.engine.conf" % user)
     node.ssh.switch_user('root')
 
@@ -379,11 +379,10 @@ class ReliableIPClusterStop(DefaultClusterSetup):
     def run(self, nodes, master, user, user_shell, volumes):
         log.info("Shutting down IPython cluster")
         master.ssh.switch_user(user)
-        master.ssh.execute("ipcluster stop", ignore_exit_status=True)
-        time.sleep(2)
         log.info("Stopping IPython controller on %s", master.alias)
-        master.ssh.execute("pkill -f supervisord", ignore_exit_status=True)
-        master.ssh.execute("pkill -f ipcontroller", ignore_exit_status=True)
+        master.ssh.execute("ipcluster stop", ignore_exit_status=True)
+        log.info("Waiting 5 seconds for the process to restart itself")
+        time.sleep(5)
         master.ssh.execute("pkill -f 'ipython notebook'",
                            ignore_exit_status=True)
         master.ssh.switch_user('root')
@@ -395,7 +394,7 @@ class ReliableIPClusterStop(DefaultClusterSetup):
     def _stop_engines(self, node, user):
         node.ssh.switch_user(user)
         node.ssh.execute("pkill -f supervisord", ignore_exit_status=True)
-        node.ssh.execute("pkill -f ipengine", ignore_exit_status=True)
+        node.ssh.execute("pkill -f IPython.parallel.engine", ignore_exit_status=True)
         node.ssh.switch_user('root')
 
     def on_add_node(self, node, nodes, master, user, user_shell, volumes):
@@ -441,11 +440,10 @@ class ReliableIPClusterRestartEngines(DefaultClusterSetup):
 
     def run(self, nodes, master, user, user_shell, volumes):
         master.ssh.switch_user(user)
-        master.ssh.execute("ipcluster stop", ignore_exit_status=True)
-        time.sleep(2)
+
         log.info("Stopping IPython controller on %s", master.alias)
-        master.ssh.execute("pkill -f supervisord", ignore_exit_status=True)
         master.ssh.execute("pkill -f ipcontroller", ignore_exit_status=True)
+        time.sleep(2)
         master.ssh.execute("pkill -f 'ipython notebook'",
                            ignore_exit_status=True)
 
