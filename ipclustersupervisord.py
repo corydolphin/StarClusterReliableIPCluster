@@ -366,6 +366,9 @@ class ReliableIPCluster(IPCluster):
                                     n_nodes=len(nodes)))
         master.ssh.switch_user('root')
 
+    def on_add_node(self, node, nodes, master, user, user_shell, volumes):
+        log.info("Starting supervisord on new node %s" % (node.alias))
+        _start_engines(node,user)
 
 
 class ReliableIPClusterStop(DefaultClusterSetup):
