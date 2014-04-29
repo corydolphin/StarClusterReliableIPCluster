@@ -12,7 +12,7 @@ from setuptools import setup
 
 setup(
     name='StarClusterReliableIPCluster',
-    version='0.0.2',
+    version='0.0.1',
     url='https://github.com/telmewheretoeat/StarClusterReliableIPCluster',
     license='LGPL3',
     author='Cory Dolphin',
